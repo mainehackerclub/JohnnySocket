@@ -1,0 +1,28 @@
+<html>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+        // Socket.io Initialization
+        var socket = io.connect();
+
+        function ledOn(pin,strobe) {
+          socket.emit('ledOn',{pin:pin,strobe:strobe});
+          console.log('ledOn');
+        };
+
+        function ledOff(pin) {
+          socket.emit('ledOff',{pin:pin});
+          console.log('ledOff');
+        };
+  </script>
+
+  <body>
+  <button onclick="ledOn(13,100)">LED 13 100</button>
+  <button onclick="ledOff(13)">LED 13 OFF</button>
+  <br>
+  <button onclick="ledOn(9,100)">LED 9 100</button>
+  <button onclick="ledOff(9)">LED 9 OFF</button>
+  <br>
+  <button onclick="ledOn(8,100)">LED 8 100</button>
+  <button onclick="ledOff(8)">LED 8 OFF</button>
+  </body>
+</html>
