@@ -1,56 +1,26 @@
-var http = require('http');
 var five = require("johnny-five"),
     // or "./lib/johnny-five" when running from the source
-    board, led8, led9, led13;
+    board, led3, led4, led5;
     board  = new five.Board();
-var static = require('node-static');
-var file = new(static.Server)('.');
 
 board.on("ready", function() {
-    // Create an Led on pin 13 and strobe it on/off
-    // Optionally set the speed; defaults to 100ms
+  // Create an Led on pin 5 and strobe it on/off
+  // Optionally set the speed; defaults to 100ms
   console.log('Board is ready');
-  led9 = new five.Led(9);
-  led13 = new five.Led(13);
+  led3 = new five.Led(4);
+  led4 = new five.Led(4);
+  led5 = new five.Led(5);
 
-
-var serv = http.createServer(function (req, res) {
-    console.log('A Connection!');
-    req.addListener('end', function () {
-    // Serve files!
-        file.serve(req, res);
+  var dnode = require('dnode');
+  var net = require('net');
+  var client = net.connect({host:'66.172.10.186',port:'5004'});
+  var d = dnode.connect(client);
+  d.pipe(net.connect(5004, '66.172.10.186')).pipe(d)
+  d.on('remote', function(remote) {
+    remote.basic('dnode is working', function(x) {
+      console.log('x is great: ',x);
     });
-    led13.stop();
-    led13.off();
-    led9.stop();
-    led9.off();
-    
-}).listen(1337, '127.0.0.1');
-var io = require('socket.io').listen(serv);
-io.sockets.on('connection', function(socket) {
-  socket.on('ledOn',function(data) {
-    console.log('ledOn',data.pin);
-    console.log(data);
-    if (data.pin == 13) {
-      console.log('pin 13');
-      led13.strobe(data.strobe);
-    } else if (data.pin == 9) {
-      console.log('pin 9');
-      led9.strobe(data.strobe);
-    }
-  });
-  socket.on('ledOff',function(data) {
-    if (data.pin == 13) {
-      led13.stop();
-      led13.off();
-      console.log('pin 13 off');
-    } else if (data.pin == 9) {
-      led9.stop();
-      led9.off();
-      console.log('pin 9 off');
-    }
+    d.end();
   });
 });
-
 console.log('Server running at http://127.0.0.1:1337/');
-});
