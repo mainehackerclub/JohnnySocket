@@ -11,16 +11,26 @@ board.on("ready", function() {
   led4 = new five.Led(4);
   led5 = new five.Led(5);
 
-  var dnode = require('dnode');
   var net = require('net');
-  var client = net.connect({host:'66.172.10.186',port:'5004'});
-  var d = dnode.connect(client);
-  d.pipe(net.connect(5004, '66.172.10.186')).pipe(d)
-  d.on('remote', function(remote) {
-    remote.basic('dnode is working', function(x) {
-      console.log('x is great: ',x);
+  var client = net.connect(
+    {host:'66.172.10.186',port:'8124'},
+    function() {//'connect' listener
+      console.log('client connected');
+      //client.write('world!\r\n');
     });
-    d.end();
+  client.on('data', function(data) {
+    console.log(data.toString());
+    if (data == 'led3') {
+      console.log('Match');
+      led3.strobe(100);
+    } else {
+      console.log('Match FAIL');
+    }
+   // client.end();
   });
+  client.on('end',function() {
+    console.log('client disconnected');
+  });
+  led4.strobe(100);
 });
 console.log('Server running at http://127.0.0.1:1337/');
