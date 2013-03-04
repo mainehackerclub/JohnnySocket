@@ -13,6 +13,7 @@ Components
 ----------
 
 There are four components to this project:
+
 1.  Arduino 
 2.  Node program running Johnny-Five & and a TCP client
 3.  Node server serving static files via HTTP, running Socket.io, and a TCP server
