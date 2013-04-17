@@ -1,28 +1,100 @@
-<html>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-        // Socket.io Initialization
-        var socket = io.connect();
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Maine Hacker Club</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-        function ledOn(pin,strobe) {
-          socket.emit('ledOn',{pin:pin,action:"strobe",period:strobe});
-          console.log('ledOn');
-        };
+    <!-- Le styles -->
+    <link href="src/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="lib/style.css"/>
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="src/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
 
-        function ledOff(pin) {
-          socket.emit('ledOff',{pin:pin,action:"off"});
-          console.log('ledOff');
-        };
-  </script>
+    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="src/bootstrap/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="src/bootstrap/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="src/bootstrap/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="src/bootstrap/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="src/bootstrap/ico/apple-touch-icon-57-precomposed.png">
+  </head>
 
   <body>
-  <button onclick="ledOn(3,100)">LED 3 100</button>
-  <button onclick="ledOff(3)">LED 3 OFF</button>
-  <br>
-  <button onclick="ledOn(4,100)">LED 4 100</button>
-  <button onclick="ledOff(4)">LED 4 OFF</button>
-  <br>
-  <button onclick="ledOn(5,100)">LED 5 100</button>
-  <button onclick="ledOff(5)">LED 5 OFF</button>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">Project name</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li class="active"><a href="#">Home</a></li>
+              <li><a href="about.html">About</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <center><img src="img/HackerClub_256.jpeg" class="img-rounded" id="hacker_logo"></center>
+        <h1>Hackers of Maine Unite!</h1>
+        <p>
+          Where can the great minds of Maine's technical communities get together to nerd out? Unfortunately, not many places in Downtown Bangor are open for evening WiFi, but that hasn't stopped us yet!
+        </p>
+        <p><a class="btn btn-primary btn-large">Join Us &raquo;</a></p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span4">
+          <h2>Heading</h2>
+          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div>
+        <div class="span4">
+          <h2>Heading</h2>
+          <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+       </div>
+        <div class="span4">
+          <h2>Heading</h2>
+          <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; Maine Hacker Club 2012-2013</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="src/jquery/jquery-1.8.1.min.js"></script>
+    <script src="src/bootstrap/js/bootstrap.min.js"></script>
   </body>
 </html>
