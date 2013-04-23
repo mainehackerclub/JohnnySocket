@@ -1,18 +1,23 @@
 <html>
   <script src="/socket.io/socket.io.js"></script>
   <script>
-        // Socket.io Initialization
-        var socket = io.connect();
+    // Socket.io Initialization
+    var socket = io.connect();
 
-        function ledOn(pin,strobe) {
-          socket.emit('ledOn',{pin:pin,action:"strobe",period:strobe});
-          console.log('ledOn');
-        };
+    function ledOn(pin,strobe) {
+      socket.emit('ledOn',{pin:pin,action:"strobe",period:strobe});
+      console.log('ledOn');
+    };
 
-        function ledOff(pin) {
-          socket.emit('ledOff',{pin:pin,action:"off"});
-          console.log('ledOff');
-        };
+    function ledOff(pin) {
+      socket.emit('ledOff',{pin:pin,action:"off"});
+      console.log('ledOff');
+    };
+
+    socket.on('board',function(data) {
+      console.log(data);
+    });
+
   </script>
 
   <body>

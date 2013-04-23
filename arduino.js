@@ -30,8 +30,19 @@ function getLed(name) {
   return found;
 }
 
+// Hearbeat tracking
+var beats = 0;
+function heartbeat(details,client) {
+  details.sequence = beats;
+  beats++;
+  client.write(JSON.stringify(details));
+}
+
 // Define arduino behavior.
 board.on("ready", function() {
+  var boardDeets = {};
+  boardDeets.uniqueId = "123456789XABCD";
+  boardDeets.name = "maine hacker board one";
   console.log('Board is ready');
   setLeds();
 
@@ -40,14 +51,17 @@ board.on("ready", function() {
     {host:'localhost',port:'8124'},
     function() {//'connect' listener
       console.log('TCP client connected');
+      client.write(JSON.stringify(boardDeets));
     }
   );
+  
+  var hbInterval = setInterval(heartbeat,1000,boardDeets,client);
 
   // Process data from TCP Server.
   client.on('data', function(data) {
-    var data = JSON.parse(data.toString()),
-      led = getLed(data.pin);
-    console.log('Received TCP data: '+data);
+    var data = JSON.parse(data.toString());
+    console.log('Received TCP data: '+util.inspect(data));
+    var led = getLed(data.pin);
     if (data.action === 'strobe') {
       console.log('strobing '+led.name+' on period '+data.period+'ms.');
       led.strobe(data.period);

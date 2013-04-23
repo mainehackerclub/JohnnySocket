@@ -4,22 +4,6 @@ var file = new(static.Server)('.');
 var net = require('net');
 var tcpClients = [];
 
-// Handle TCP client connections.
-var server = net.createServer(function(c) { //'connection' listener
-
-  console.log('TCP client connected');
-  c.on('end', function() {
-    console.log('TCP client disconnected');
-    tcpClients.pop();
-  });
-
-  c.pipe(c);
-  tcpClients.push(c);
-});
-server.listen(8124, function() {
-  console.log('TCP server bound');
-});
-
 // Create HTTP server
 var serv = http.createServer(function (req, res) {
     console.log('HTTP Connection');
@@ -43,6 +27,33 @@ io.sockets.on('connection', function(socket) {
     tcpClients[0].write(JSON.stringify(data));
     console.log(data);
   });
+});
+
+// Pass TCP events to socket.io
+function heartbeat(data) {
+  io.sockets.emit('board',data);
+}
+
+// Handle TCP client connections.
+var server = net.createServer(function(c) { //'connection' listener
+
+  console.log('TCP client connected');
+  c.on('end', function() {
+    console.log('TCP client disconnected');
+    tcpClients.pop();
+  });
+
+  c.on('data', function(data) {
+    var data = JSON.parse(data.toString());
+    console.log(data);
+    heartbeat(data);
+  });
+
+  //c.pipe(c);
+  tcpClients.push(c);
+});
+server.listen(8124, function() {
+  console.log('TCP server bound');
 });
 
 console.log('Server running at http://127.0.0.1:1337/');
