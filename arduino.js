@@ -48,14 +48,14 @@ board.on("ready", function() {
 
   // Make TCP connection as client.
   var client = net.connect(
-    {host:'localhost',port:'8124'},
+    {host:'awesomesauce.me',port:'8130'},
     function() {//'connect' listener
       console.log('TCP client connected');
       client.write(JSON.stringify(boardDeets));
     }
   );
   
-  var hbInterval = setInterval(heartbeat,1000,boardDeets,client);
+  var hbInterval = setInterval(heartbeat,5000,boardDeets,client);
 
   // Process data from TCP Server.
   client.on('data', function(data) {
