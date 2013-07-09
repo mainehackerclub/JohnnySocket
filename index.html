@@ -1,5 +1,8 @@
 <html>
+  <head>
   <script src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="src/d3/d3.js"></script>
+  <script type="text/javascript" src="src/jquery/jquery-1.8.1.min.js"></script>
   <script>
     // Socket.io Initialization
     var socket = io.connect();
@@ -18,7 +21,218 @@
       console.log(data);
     });
 
+    //D3.js Force layout intialization.
+    var width = 640,
+        height = 480,
+            fill = d3.scale.category20(),
+                nodes = [],
+                    links = [];
+
+// Global viz variables;
+var localColor;
+var localR;
+
+var vis = d3.select("#chart").append("svg")
+    .attr("width", width)
+        .attr("height", height);
+
+        //Custom dispatcher for socket.io events.
+        var socketDispatch = d3.dispatch("point");
+        socketDispatch.on("point",socketPoint);
+
+        // Register for point events.
+        socket.on('point',function(data) {
+              console.log('point ',data);
+                socketDispatch.point(data);
+                });
+
+// Register for color events.
+socket.on('nodeAttr',function(data) {
+      console.log('color ',data.color);
+        console.log('r ',data.r);
+          localColor = data.color;
+            localR = data.r;
+              vis.selectAll("circle.cursor")
+                  .attr("r",localR);
+
+                  });
+
+// This is firing too often.
+socket.on('load',function(data) {
+      console.log('load ',data);
+        $('.sockets').text(data.sockets)
+          $('.connections').text(data.connections)
+          });
+
+// Continuted D3.js Force layout setup.
+vis.append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+var force = d3.layout.force()
+    .distance(30)
+    .nodes(nodes)
+    .links(links)
+    .charge(function(node) {
+      var charge = -30,
+        pq = 200,
+        max = 600;
+      if (node.r < 10) {
+        pq = node.r * node.r;
+      } else {
+        pq = node.r * 15;
+      }
+      if (pq > max) {
+        charge = -1 * max;
+      } else {
+        charge = pq * -1;
+      }
+      console.log('force.charge ',node.r,charge );
+      return charge;
+    })
+    .linkDistance(function(link) {
+      var r1 = link.source.r,
+          r2 = link.target.r,
+          min = 15;
+          distance = (r1 + r2) * 2;
+      if (distance < min) {
+        distance = min;
+      }
+      console.log('radius link', r1, r2,distance);
+      return distance;
+    })
+    .size([width, height]);
+
+force.on("tick", function() {
+  vis.selectAll("line.link")
+      .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+
+  vis.selectAll("circle.node")
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; });
+});
+
+vis.on("mousemove", function() {
+  cursor.attr("transform", "translate(" + d3.mouse(this) + ")");
+});
+
+function linkPoint(node) {
+  // add links to any nearby nodes
+  nodes.forEach(function(target) {
+    var x = target.x - node.x,
+        y = target.y - node.y,
+        threshold;
+    if (target.r < node.r) {
+      threshold = node.r * 2.75 ;
+    } else {
+      threshold = target.r * 2.75;
+    }
+    if (Math.sqrt(x * x + y * y) < threshold ) {
+      links.push({source: node, target: target});
+    }
+  });
+};
+
+function mousePoint(vis) {
+  var point = d3.mouse(vis),
+      node = {
+        x: point[0],
+        y: point[1],
+        fill: localColor,
+        r: localR,
+        source:"mouse"},
+      n = nodes.push(node);
+  linkPoint(node);
+  return point;
+};
+
+function socketPoint(data) {
+  console.log('socketPoint: ',data);
+  var point = data.point,
+      node = { 
+        x: point[0], 
+        y: point[1], 
+        fill: data.color,
+        r: data.r,
+        source:"socket"};
+      n = nodes.push(node);
+  linkPoint(node);
+  restart();
+};
+
+vis.on("mousedown", function() {
+  var self  = this;
+  var point = mousePoint(self);
+  var pack = {};
+  pack.coordX = point[0];
+  pack.coordY = point[1];
+  var ev = new Shlock('web','point',URL);
+  merge(ev,pack);
+  merge(ev,gClient);
+  socket.emit('point',ev);
+  restart();
+});
+
+restart();
+
+function setStroke (node) {
+  var color = "black";
+  return color;
+}
+
+function setFill (node) {
+  var color = "";
+  if (node.source=="mouse") {
+    color = localColor;
+  } else {
+    color = node.fill;
+  }
+  return color;
+}
+
+function setRadius (node) {
+  var r = "";
+  if (node.source=="mouse") {
+    r = localR;
+  } else {
+    r = node.r;
+  }
+  return r;
+}
+
+function restart() {
+  force.start();
+
+  vis.selectAll("line.link")
+      .data(links)
+    .enter().insert("line", "circle.node")
+      .attr("class", "link")
+      .attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
+
+  vis.selectAll("circle.node")
+      .data(nodes)
+    .enter().insert("circle", "circle.cursor")
+      .attr("class", "node")
+      .attr("cx", function(d) { return d.x; })
+      .attr("cy", function(d) { return d.y; })
+      .attr("r", setRadius)
+      .attr("fill", setFill)
+      .attr("stroke", setStroke)
+      .call(force.drag);
+}
+
+var cursor = vis.append("circle")
+    .attr("transform", "translate(-100,-100)")
+    .attr("class", "cursor");
+
   </script>
+  </head>
 
   <body>
   <button onclick="ledOn(3,100)">LED 3 100</button>
